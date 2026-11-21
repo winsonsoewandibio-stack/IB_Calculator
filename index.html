@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f4ef">
+  <title>IB Grade Calculator</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #192b25;
+      --muted: #64736c;
+      --paper: #f5f4ef;
+      --card: #fffefa;
+      --line: #e4e6dc;
+      --green: #245c46;
+      --green-dark: #194533;
+      --lime: #d7ed9c;
+      --soft-green: #eef4e8;
+      --amber: #8a5a18;
+      --soft-amber: #fff4df;
+      --shadow: 0 18px 50px rgb(34 49 39 / 7%);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 87% 2%, rgb(215 237 156 / 33%), transparent 29rem),
+        var(--paper);
+    }
+
+    button, select { font: inherit; }
+    button, select:focus-visible { outline-color: var(--green); outline-offset: 3px; }
+
+    .page-shell { width: min(1120px, calc(100% - 48px)); margin: 0 auto; }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 82px;
+      border-bottom: 1px solid rgb(25 43 37 / 9%);
+    }
+
+    .brand { display: flex; align-items: center; gap: 11px; font-size: 15px; font-weight: 750; letter-spacing: -.03em; }
+    .brand-mark {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      color: white;
+      background: var(--green);
+      border-radius: 11px;
+      font-size: 17px;
+    }
+    .header-note { color: var(--muted); font-size: 13px; }
+
+    main { padding: 60px 0 48px; }
+    .intro { max-width: 680px; margin-bottom: 34px; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before { width: 18px; height: 2px; background: var(--green); content: ""; }
+    h1 { margin: 0; font-size: clamp(38px, 6vw, 61px); font-weight: 680; letter-spacing: -.065em; line-height: 1.03; }
+    .intro p { max-width: 560px; margin: 17px 0 0; color: var(--muted); font-size: 16px; line-height: 1.65; }
+
+    .calculator-layout { display: grid; grid-template-columns: minmax(0, 1fr) 325px; align-items: start; gap: 22px; }
+    .form-column { display: grid; gap: 20px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
+    .form-card { padding: 25px 26px 26px; }
+    .section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+    .section-heading h2 { margin: 0; font-size: 18px; letter-spacing: -.035em; }
+    .section-heading p { margin: 6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .section-index { display: grid; flex: 0 0 30px; width: 30px; height: 30px; place-items: center; color: var(--green); background: var(--soft-green); border-radius: 10px; font-size: 12px; font-weight: 800; }
+
+    .subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .subject-row { display: grid; grid-template-columns: minmax(0, 1fr) 76px 76px; align-items: center; gap: 9px; padding: 11px 12px; background: #fbfbf7; border: 1px solid #eceee6; border-radius: 12px; }
+    .subject-name { min-width: 0; }
+    .subject-name label { display: block; overflow: hidden; font-size: 13px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+    .subject-name span { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; }
+    select {
+      width: 100%;
+      min-height: 39px;
+      padding: 0 9px;
+      color: var(--ink);
+      background: white;
+      border: 1px solid #dfe3da;
+      border-radius: 9px;
+      cursor: pointer;
+    }
+    select:focus { border-color: var(--green); }
+    .subject-row select { font-size: 12px; }
+
+    .core-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .field label { display: block; margin-bottom: 7px; font-size: 13px; font-weight: 650; }
+    .field select { min-height: 44px; }
+    .core-hint { display: flex; align-items: flex-start; gap: 9px; margin-top: 16px; padding: 12px 13px; color: #526457; background: var(--soft-green); border-radius: 10px; font-size: 12px; line-height: 1.5; }
+    .core-hint strong { color: var(--green-dark); }
+    .hint-icon { flex: 0 0 auto; font-size: 14px; }
+
+    .result-card { position: sticky; top: 20px; overflow: hidden; color: white; background: var(--green); border: 0; }
+    .result-top { padding: 25px 25px 22px; }
+    .result-label { color: rgb(255 255 255 / 72%); font-size: 12px; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; }
+    .total-wrap { display: flex; align-items: baseline; gap: 8px; margin-top: 12px; }
+    .total { font-size: 76px; font-weight: 650; letter-spacing: -.075em; line-height: .96; }
+    .total-out-of { color: rgb(255 255 255 / 68%); font-size: 16px; }
+    .total-caption { min-height: 20px; margin-top: 11px; color: rgb(255 255 255 / 76%); font-size: 12px; }
+    .progress-track { height: 6px; margin-top: 21px; overflow: hidden; background: rgb(255 255 255 / 19%); border-radius: 99px; }
+    .progress-bar { width: 0; height: 100%; background: var(--lime); border-radius: inherit; transition: width 180ms ease; }
+    .breakdown { padding: 19px 25px 23px; color: var(--ink); background: var(--card); }
+    .breakdown h2 { margin: 0 0 12px; font-size: 13px; }
+    .breakdown-row { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-top: 1px solid var(--line); font-size: 12px; }
+    .breakdown-row span:first-child { color: var(--muted); }
+    .breakdown-row strong { font-variant-numeric: tabular-nums; }
+    .status { margin-top: 13px; padding: 10px 11px; color: #5e543e; background: #f5f1e7; border-radius: 9px; font-size: 11px; line-height: 1.5; }
+    .status.warning { color: var(--amber); background: var(--soft-amber); }
+    .actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 3px; }
+    .fine-print { max-width: 550px; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+    .reset-button { flex: 0 0 auto; padding: 10px 14px; color: var(--green-dark); background: transparent; border: 1px solid #cfd7cd; border-radius: 9px; cursor: pointer; font-size: 12px; font-weight: 700; }
+    .reset-button:hover { background: var(--soft-green); }
+    footer { padding: 20px 0 28px; color: #78827b; font-size: 11px; text-align: center; }
+
+    @media (max-width: 850px) {
+      .calculator-layout { grid-template-columns: 1fr; }
+      .result-card { position: static; grid-row: 1; }
+      .result-top { padding-bottom: 20px; }
+      .total { font-size: 65px; }
+    }
+    @media (max-width: 560px) {
+      .page-shell { width: min(100% - 28px, 480px); }
+      header { min-height: 66px; }
+      .header-note { max-width: 125px; font-size: 11px; text-align: right; }
+      main { padding: 42px 0 30px; }
+      .intro { margin-bottom: 24px; }
+      .intro p { font-size: 14px; }
+      .form-card { padding: 20px 16px; }
+      .subject-grid { grid-template-columns: 1fr; gap: 9px; }
+      .subject-row { grid-template-columns: minmax(0, 1fr) 78px 78px; }
+      .core-grid { gap: 10px; }
+      .result-top { padding: 22px 20px 18px; }
+      .breakdown { padding: 18px 20px 21px; }
+      .actions { align-items: flex-start; flex-direction: column-reverse; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <header>
+      <div class="brand"><span class="brand-mark" aria-hidden="true">∑</span><span>IB Scorecard</span></div>
+      <span class="header-note">A clearer view of your IB points</span>
+    </header>
+
+    <main>
+      <section class="intro" aria-labelledby="page-title">
+        <div class="eyebrow">Diploma Programme</div>
+        <h1 id="page-title">Your IB score,<br>at a glance.</h1>
+        <p>Enter your six subject grades and your core results to see your estimated Diploma Programme points out of 45.</p>
+      </section>
+
+      <div class="calculator-layout">
+        <div class="form-column">
+          <section class="card form-card" aria-labelledby="subjects-title">
+            <div class="section-heading">
+              <div>
+                <h2 id="subjects-title">Subject grades</h2>
+                <p>Choose a level and grade for each of your six subjects.</p>
+              </div>
+              <span class="section-index" aria-hidden="true">01</span>
+            </div>
+            <div class="subject-grid" id="subject-grid"></div>
+          </section>
+
+          <section class="card form-card" aria-labelledby="core-title">
+            <div class="section-heading">
+              <div>
+                <h2 id="core-title">The core</h2>
+                <p>Enter your Extended Essay and Theory of Knowledge grades.</p>
+              </div>
+              <span class="section-index" aria-hidden="true">02</span>
+            </div>
+            <div class="core-grid">
+              <div class="field">
+                <label for="ee-grade">Extended Essay</label>
+                <select id="ee-grade" aria-label="Extended Essay grade">
+                  <option value="">Select grade</option>
+                  <option value="A">A — Excellent</option>
+                  <option value="B">B — Good</option>
+                  <option value="C">C — Satisfactory</option>
+                  <option value="D">D — Mediocre</option>
+                  <option value="E">E — Elementary</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="tok-grade">Theory of Knowledge</label>
+                <select id="tok-grade" aria-label="Theory of Knowledge grade">
+                  <option value="">Select grade</option>
+                  <option value="A">A — Excellent</option>
+                  <option value="B">B — Good</option>
+                  <option value="C">C — Satisfactory</option>
+                  <option value="D">D — Mediocre</option>
+                  <option value="E">E — Elementary</option>
+                </select>
+              </div>
+            </div>
+            <div class="core-hint"><span class="hint-icon" aria-hidden="true">✦</span><span>The core contributes <strong>up to 3 bonus points</strong>. The bonus is calculated from the official EE/TOK matrix.</span></div>
+          </section>
+
+          <div class="actions">
+            <p class="fine-print">This is an estimate based on entered grades, not an official IB result or a diploma-award eligibility check. Subject assessment components and session-specific grade boundaries are not included.</p>
+            <button class="reset-button" id="reset-button" type="button">Reset grades</button>
+          </div>
+        </div>
+
+        <aside class="card result-card" aria-label="Estimated IB score" aria-live="polite">
+          <div class="result-top">
+            <div class="result-label">Estimated total</div>
+            <div class="total-wrap"><span class="total" id="total-score">0</span><span class="total-out-of">/ 45</span></div>
+            <div class="total-caption" id="total-caption">Enter your grades to get started.</div>
+            <div class="progress-track" role="progressbar" aria-label="Estimated score out of 45" aria-valuemin="0" aria-valuemax="45" aria-valuenow="0" id="progress-track"><div class="progress-bar" id="progress-bar"></div></div>
+          </div>
+          <div class="breakdown">
+            <h2>Score breakdown</h2>
+            <div class="breakdown-row"><span>Subject points</span><strong id="subject-points">0 / 42</strong></div>
+            <div class="breakdown-row"><span>Core bonus</span><strong id="core-points">0 / 3</strong></div>
+            <div class="breakdown-row"><span>Grades entered</span><strong id="grades-entered">0 / 6</strong></div>
+            <div class="status" id="core-status">Add both core grades to calculate your bonus points.</div>
+          </div>
+        </aside>
+      </div>
+    </main>
+    <footer>Made for planning your next steps. Always confirm results with your IB coordinator.</footer>
+  </div>
+
+  <script>
+    const subjects = [
+      "Studies in Language & Literature",
+      "Language Acquisition",
+      "Individuals & Societies",
+      "Sciences",
+      "Mathematics",
+      "The Arts / Elective"
+    ];
+
+    const subjectGrid = document.getElementById("subject-grid");
+    const gradeOptions = '<option value="">Grade</option>' +
+      [7, 6, 5, 4, 3, 2, 1].map((grade) => `<option value="${grade}">${grade}</option>`).join("");
+    const levelOptions = '<option value="HL">HL</option><option value="SL">SL</option>';
+
+    subjects.forEach((subject, index) => {
+      const row = document.createElement("div");
+      row.className = "subject-row";
+      row.innerHTML =
+        `<div class="subject-name"><label for="subject-${index}">${subject}</label><span>Subject ${index + 1}</span></div>` +
+        `<select class="subject-level" aria-label="${subject} level" title="Subject level">${levelOptions}</select>` +
+        `<select class="subject-grade" id="subject-${index}" aria-label="${subject} grade">${gradeOptions}</select>`;
+      subjectGrid.appendChild(row);
+    });
+
+    const coreMatrix = {
+      A: { A: 3, B: 3, C: 2, D: 2, E: 0 },
+      B: { A: 3, B: 2, C: 2, D: 1, E: 0 },
+      C: { A: 2, B: 2, C: 1, D: 0, E: 0 },
+      D: { A: 2, B: 1, C: 0, D: 0, E: 0 },
+      E: { A: 0, B: 0, C: 0, D: 0, E: 0 }
+    };
+
+    const subjectGradeInputs = [...document.querySelectorAll(".subject-grade")];
+    const selectors = [...subjectGradeInputs, ...document.querySelectorAll(".subject-level"), document.getElementById("ee-grade"), document.getElementById("tok-grade")];
+
+    function updateScore() {
+      const enteredGrades = subjectGradeInputs
+        .map((input) => input.value)
+        .filter((grade) => grade !== "");
+      const subjectTotal = enteredGrades.reduce((sum, grade) => sum + Number(grade), 0);
+      const ee = document.getElementById("ee-grade").value;
+      const tok = document.getElementById("tok-grade").value;
+      const coreComplete = ee !== "" && tok !== "";
+      const corePoints = coreComplete ? coreMatrix[ee][tok] : 0;
+      const total = subjectTotal + corePoints;
+      const coreStatus = document.getElementById("core-status");
+
+      document.getElementById("total-score").textContent = total;
+      document.getElementById("subject-points").textContent = `${subjectTotal} / 42`;
+      document.getElementById("core-points").textContent = `${corePoints} / 3`;
+      document.getElementById("grades-entered").textContent = `${enteredGrades.length} / 6`;
+      document.getElementById("total-caption").textContent = enteredGrades.length === 0
+        ? "Enter your grades to get started."
+        : enteredGrades.length === 6 && coreComplete
+          ? "All grades entered — your estimated total."
+          : `${enteredGrades.length} of 6 subject grades entered${coreComplete ? "." : " · core grades still needed."}`;
+      document.getElementById("progress-bar").style.width = `${(total / 45) * 100}%`;
+      document.getElementById("progress-track").setAttribute("aria-valuenow", total);
+
+      coreStatus.classList.toggle("warning", coreComplete && (ee === "E" || tok === "E"));
+      if (!coreComplete) {
+        coreStatus.textContent = "Add both core grades to calculate your bonus points.";
+      } else if (ee === "E" || tok === "E") {
+        coreStatus.textContent = `Core bonus: ${corePoints} points. An E in EE or TOK can affect Diploma award eligibility.`;
+      } else {
+        coreStatus.textContent = `Your EE/TOK combination earns ${corePoints} core bonus ${corePoints === 1 ? "point" : "points"}.`;
+      }
+    }
+
+    selectors.forEach((selector) => selector.addEventListener("change", updateScore));
+    document.getElementById("reset-button").addEventListener("click", () => {
+      selectors.forEach((selector) => {
+        if (selector.classList.contains("subject-level")) {
+          selector.value = "HL";
+        } else {
+          selector.value = "";
+        }
+      });
+      updateScore();
+      subjectGradeInputs[0].focus();
+    });
+
+    updateScore();
+  </script>
+</body>
+</html>
