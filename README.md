@@ -12,6 +12,6 @@ The calculator adds the six subject grades (up to 42 points) to the core bonus (
 
 The GitHub Actions workflow in `.github/workflows/deploy-pages.yml` deploys the site whenever changes are pushed to `main`. After the first successful deployment, the site will be available at:
 
-https://winsonsoewandibio-stack.github.io/Interactive_Econ/
+https://winsonsoewandibio-stack.github.io/IB_Calculator/
 
 In the repository settings, make sure **Pages → Build and deployment → Source** is set to **GitHub Actions** if it is not configured automatically.
