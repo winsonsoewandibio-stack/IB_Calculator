@@ -6,7 +6,9 @@ A lightweight IB Diploma Programme grade calculator. Enter grades for six subjec
 
 Open `index.html` in a modern web browser. No installation or build step is required.
 
-The calculator adds the six subject grades (up to 42 points) to the core bonus (up to 3 points), using the EE/TOK bonus matrix. It is an estimate only: it does not calculate subject grades from assessment components or determine diploma-award eligibility.
+The calculator offers subject choices from the six IB subject groups, then adds the six subject grades (up to 42 points) to the core bonus (up to 3 points), using the EE/TOK bonus matrix.
+
+The percentile shown is a planning approximation, not an official IB publication. It uses a normal-distribution model centered on the 2024 global Diploma Programme average of 30.32. Subject choices and individual HL/SL subject distributions are not yet modelled, and percentile estimates should not be used for official admissions decisions.
 
 ## Publish with GitHub Pages
 

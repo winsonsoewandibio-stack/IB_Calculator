@@ -90,7 +90,7 @@
     .section-index { display: grid; flex: 0 0 30px; width: 30px; height: 30px; place-items: center; color: var(--green); background: var(--soft-green); border-radius: 10px; font-size: 12px; font-weight: 800; }
 
     .subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .subject-row { display: grid; grid-template-columns: minmax(0, 1fr) 76px 76px; align-items: center; gap: 9px; padding: 11px 12px; background: #fbfbf7; border: 1px solid #eceee6; border-radius: 12px; }
+    .subject-row { display: grid; grid-template-columns: minmax(0, 1fr) 76px minmax(150px, 1.25fr) 76px; align-items: center; gap: 9px; padding: 11px 12px; background: #fbfbf7; border: 1px solid #eceee6; border-radius: 12px; }
     .subject-name { min-width: 0; }
     .subject-name label { display: block; overflow: hidden; font-size: 13px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
     .subject-name span { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; }
@@ -128,6 +128,9 @@
     .breakdown-row { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-top: 1px solid var(--line); font-size: 12px; }
     .breakdown-row span:first-child { color: var(--muted); }
     .breakdown-row strong { font-variant-numeric: tabular-nums; }
+    .percentile-row { align-items: center; }
+    .percentile-value { color: var(--green); font-size: 17px; }
+    .percentile-caption { margin: 2px 0 10px; color: var(--muted); font-size: 11px; line-height: 1.45; }
     .status { margin-top: 13px; padding: 10px 11px; color: #5e543e; background: #f5f1e7; border-radius: 9px; font-size: 11px; line-height: 1.5; }
     .status.warning { color: var(--amber); background: var(--soft-amber); }
     .actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 3px; }
@@ -151,7 +154,8 @@
       .intro p { font-size: 14px; }
       .form-card { padding: 20px 16px; }
       .subject-grid { grid-template-columns: 1fr; gap: 9px; }
-      .subject-row { grid-template-columns: minmax(0, 1fr) 78px 78px; }
+      .subject-row { grid-template-columns: 64px minmax(0, 1fr) 64px; }
+      .subject-name { grid-column: 1 / -1; }
       .core-grid { gap: 10px; }
       .result-top { padding: 22px 20px 18px; }
       .breakdown { padding: 18px 20px 21px; }
@@ -242,6 +246,8 @@
             <div class="breakdown-row"><span>Subject points</span><strong id="subject-points">0 / 42</strong></div>
             <div class="breakdown-row"><span>Core bonus</span><strong id="core-points">0 / 3</strong></div>
             <div class="breakdown-row"><span>Grades entered</span><strong id="grades-entered">0 / 6</strong></div>
+            <div class="breakdown-row percentile-row"><span>Estimated percentile</span><strong class="percentile-value" id="percentile-score">--</strong></div>
+            <p class="percentile-caption" id="percentile-caption">Enter a score to compare it with the IB student population.</p>
             <div class="status" id="core-status">Add both core grades to calculate your bonus points.</div>
           </div>
         </aside>
@@ -251,13 +257,31 @@
   </div>
 
   <script>
-    const subjects = [
-      "Studies in Language & Literature",
-      "Language Acquisition",
-      "Individuals & Societies",
-      "Sciences",
-      "Mathematics",
-      "The Arts / Elective"
+    const subjectGroups = [
+      {
+        title: "Studies in Language and Literature",
+        subjects: ["English A: Language & Literature", "English A: Literature", "Literature and Performance", "School-supported self-taught literature"]
+      },
+      {
+        title: "Language Acquisition",
+        subjects: ["Mandarin", "French", "Spanish", "German", "Japanese", "Latin", "Other language"]
+      },
+      {
+        title: "Individuals and Societies",
+        subjects: ["Business Management", "Economics", "Geography", "Global Politics", "History", "Philosophy", "Psychology", "Social and Cultural Anthropology", "World Religions"]
+      },
+      {
+        title: "Sciences",
+        subjects: ["Biology", "Chemistry", "Computer Science", "Design Technology", "Physics", "Environmental Systems and Societies", "Sports, Exercise and Health Science"]
+      },
+      {
+        title: "Mathematics",
+        subjects: ["Mathematics: Analysis and Approaches", "Mathematics: Applications and Interpretation"]
+      },
+      {
+        title: "The Arts or Elective",
+        subjects: ["Visual Arts", "Music", "Dance", "Film", "Theatre", "An additional subject from Groups 1–4"]
+      }
     ];
 
     const subjectGrid = document.getElementById("subject-grid");
@@ -265,13 +289,17 @@
       [7, 6, 5, 4, 3, 2, 1].map((grade) => `<option value="${grade}">${grade}</option>`).join("");
     const levelOptions = '<option value="HL">HL</option><option value="SL">SL</option>';
 
-    subjects.forEach((subject, index) => {
+    subjectGroups.forEach((group, index) => {
       const row = document.createElement("div");
       row.className = "subject-row";
+      const subjectOptions = group.subjects
+        .map((subject) => `<option value="${subject}">${subject}</option>`)
+        .join("");
       row.innerHTML =
-        `<div class="subject-name"><label for="subject-${index}">${subject}</label><span>Subject ${index + 1}</span></div>` +
-        `<select class="subject-level" aria-label="${subject} level" title="Subject level">${levelOptions}</select>` +
-        `<select class="subject-grade" id="subject-${index}" aria-label="${subject} grade">${gradeOptions}</select>`;
+        `<div class="subject-name"><label for="subject-${index}">${group.title}</label><span>Subject ${index + 1}</span></div>` +
+        `<select class="subject-level" aria-label="${group.title} level" title="Subject level">${levelOptions}</select>` +
+        `<select class="subject-choice" id="subject-${index}" aria-label="${group.title} choice">${subjectOptions}</select>` +
+        `<select class="subject-grade" id="subject-grade-${index}" aria-label="${group.title} grade">${gradeOptions}</select>`;
       subjectGrid.appendChild(row);
     });
 
@@ -284,7 +312,31 @@
     };
 
     const subjectGradeInputs = [...document.querySelectorAll(".subject-grade")];
-    const selectors = [...subjectGradeInputs, ...document.querySelectorAll(".subject-level"), document.getElementById("ee-grade"), document.getElementById("tok-grade")];
+    const selectors = [
+      ...subjectGradeInputs,
+      ...document.querySelectorAll(".subject-level"),
+      ...document.querySelectorAll(".subject-choice"),
+      document.getElementById("ee-grade"),
+      document.getElementById("tok-grade")
+    ];
+
+    function normalCdf(value, mean, standardDeviation) {
+      const z = (value - mean) / (standardDeviation * Math.sqrt(2));
+      const sign = z < 0 ? -1 : 1;
+      const absoluteZ = Math.abs(z);
+      const approximation = 1 - 1 / (1 + 0.3275911 * absoluteZ);
+      const polynomial = (((((1.061405429 * approximation - 1.453152027) * approximation) +
+        1.421413741) * approximation - 0.284496736) * approximation + 0.254829592) * approximation;
+      const result = 1 - polynomial * Math.exp(-absoluteZ * absoluteZ);
+      return 0.5 * (1 + sign * result);
+    }
+
+    function estimateOverallPercentile(score) {
+      // Planning approximation using a normal distribution centered on the 2024
+      // published global Diploma Programme average (30.32) with an estimated
+      // standard deviation. This is not an official IB percentile.
+      return Math.round(normalCdf(score - 0.5, 30.32, 5.5) * 100);
+    }
 
     function updateScore() {
       const enteredGrades = subjectGradeInputs
@@ -310,6 +362,24 @@
       document.getElementById("progress-bar").style.width = `${(total / 45) * 100}%`;
       document.getElementById("progress-track").setAttribute("aria-valuenow", total);
 
+      const percentileElement = document.getElementById("percentile-score");
+      const percentileCaption = document.getElementById("percentile-caption");
+      if (enteredGrades.length === 0) {
+        percentileElement.textContent = "--";
+        percentileCaption.textContent = "Enter a score to compare it with the IB student population.";
+      } else {
+        const percentile = estimateOverallPercentile(total);
+        const ordinalSuffix = percentile % 10 === 1 && percentile % 100 !== 11
+          ? "st"
+          : percentile % 10 === 2 && percentile % 100 !== 12
+            ? "nd"
+            : percentile % 10 === 3 && percentile % 100 !== 13
+              ? "rd"
+              : "th";
+        percentileElement.textContent = `${percentile}${ordinalSuffix}`;
+        percentileCaption.textContent = "Approximate planning percentile based on a 2024 global average model. This is not an official IB percentile.";
+      }
+
       coreStatus.classList.toggle("warning", coreComplete && (ee === "E" || tok === "E"));
       if (!coreComplete) {
         coreStatus.textContent = "Add both core grades to calculate your bonus points.";
@@ -325,6 +395,8 @@
       selectors.forEach((selector) => {
         if (selector.classList.contains("subject-level")) {
           selector.value = "HL";
+        } else if (selector.classList.contains("subject-choice")) {
+          selector.selectedIndex = 0;
         } else {
           selector.value = "";
         }
