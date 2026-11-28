@@ -91,10 +91,13 @@
     .section-index { display: grid; flex: 0 0 30px; width: 30px; height: 30px; place-items: center; color: var(--green); background: var(--soft-green); border-radius: 10px; font-size: 12px; font-weight: 800; }
 
     .subject-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 350px), 1fr)); gap: 12px; }
-    .subject-row { display: grid; grid-template-columns: minmax(0, 1fr) 70px minmax(145px, 1.25fr) 70px; align-items: center; gap: 9px; padding: 11px 12px; background: #fbfbf7; border: 1px solid #eceee6; border-radius: 12px; }
+    .subject-row { display: grid; align-content: start; gap: 9px; padding: 11px 12px; background: #fbfbf7; border: 1px solid #eceee6; border-radius: 12px; }
     .subject-name { min-width: 0; }
-    .subject-name label { display: block; overflow: hidden; font-size: 13px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+    .subject-name label { display: block; font-size: 13px; font-weight: 650; }
     .subject-name span { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; }
+    .subject-controls { display: grid; grid-template-columns: 70px minmax(0, 1fr) 70px; gap: 9px; }
+    .subject-category { display: grid; gap: 5px; }
+    .subject-category label { color: var(--muted); font-size: 11px; font-weight: 650; }
     .subject-note { margin: 14px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
     select {
       width: 100%;
@@ -158,8 +161,7 @@
       .intro p { font-size: 14px; }
       .form-card { padding: 20px 16px; }
       .subject-grid { grid-template-columns: minmax(0, 1fr); gap: 9px; }
-      .subject-row { grid-template-columns: 64px minmax(0, 1fr) 64px; }
-      .subject-name { grid-column: 1 / -1; }
+      .subject-controls { grid-template-columns: 64px minmax(0, 1fr) 64px; }
       .core-grid { gap: 10px; }
       .result-top { padding: 22px 20px 18px; }
       .breakdown { padding: 18px 20px 21px; }
@@ -195,7 +197,8 @@
               <span class="section-index" aria-hidden="true">01</span>
             </div>
             <div class="subject-grid" id="subject-grid"></div>
-            <p class="subject-note">Interdisciplinary courses can count toward two groups: Literature and performance (Studies in language and literature and the arts); Environmental systems and societies (Sciences and individuals and societies).</p>
+            <p class="subject-note">For Group 6, choose Arts or an additional course from Studies in language and literature, Language acquisition, Individuals and societies, or Sciences.</p>
+            <p class="subject-note">Interdisciplinary courses count toward two groups: Literature and performance (Studies in language and literature and Arts); Environmental systems and societies (Sciences and Individuals and societies).</p>
           </section>
 
           <section class="card form-card" aria-labelledby="core-title">
@@ -280,7 +283,7 @@
       },
       {
         title: "Individuals and Societies",
-        subjects: ["Business management", "Digital society", "Economics", "Geography", "Global politics", "History", "Philosophy", "Psychology", "Social and cultural anthropology", "World religions"]
+        subjects: ["Business management", "Digital society", "Economics", "Environmental systems and societies", "Geography", "Global politics", "History", "Philosophy", "Psychology", "Social and cultural anthropology", "World religions"]
       },
       {
         title: "Sciences",
@@ -292,7 +295,7 @@
       },
       {
         title: "The Arts",
-        subjects: ["Dance", "Film", "Music", "Theatre", "Visual arts", "An additional sciences, individuals and societies, or languages subject"]
+        subjects: ["Dance", "Film", "Literature and performance", "Music", "Theatre", "Visual arts"]
       }
     ];
 
@@ -300,6 +303,14 @@
     const gradeOptions = '<option value="">Grade</option>' +
       [7, 6, 5, 4, 3, 2, 1].map((grade) => `<option value="${grade}">${grade}</option>`).join("");
     const levelOptions = '<option value="HL">HL</option><option value="SL">SL</option>';
+    const additionalGroupOptions = [5, 0, 1, 2, 3]
+      .map((groupIndex) => {
+        const label = groupIndex === 5
+          ? "Arts (Group 6)"
+          : `${subjectGroups[groupIndex].title} (Group ${groupIndex + 1})`;
+        return `<option value="${groupIndex}">${label}</option>`;
+      })
+      .join("");
 
     subjectGroups.forEach((group, index) => {
       const row = document.createElement("div");
@@ -307,11 +318,19 @@
       const subjectOptions = group.subjects
         .map((subject) => `<option value="${subject}">${subject}</option>`)
         .join("");
+      const groupSelector = index === 5
+        ? `<div class="subject-category"><label for="subject-group-${index}">Choose this subject's group</label><select class="subject-group-choice" id="subject-group-${index}">${additionalGroupOptions}</select></div>`
+        : "";
+      const name = index === 5 ? "Additional subject" : group.title;
+      const groupNumber = index === 5 ? "Group 6 / replacement" : `Group ${index + 1}`;
       row.innerHTML =
-        `<div class="subject-name"><label for="subject-${index}">${group.title}</label><span>Group ${index + 1}</span></div>` +
-        `<select class="subject-level" aria-label="${group.title} level" title="Subject level">${levelOptions}</select>` +
-        `<select class="subject-choice" id="subject-${index}" aria-label="${group.title} choice">${subjectOptions}</select>` +
-        `<select class="subject-grade" id="subject-grade-${index}" aria-label="${group.title} grade">${gradeOptions}</select>`;
+        `<div class="subject-name"><label for="subject-${index}">${name}</label><span>${groupNumber}</span></div>` +
+        groupSelector +
+        `<div class="subject-controls">` +
+        `<select class="subject-level" aria-label="${name} level" title="Subject level">${levelOptions}</select>` +
+        `<select class="subject-choice" id="subject-${index}" aria-label="${name} choice">${subjectOptions}</select>` +
+        `<select class="subject-grade" id="subject-grade-${index}" aria-label="${name} grade">${gradeOptions}</select>` +
+        `</div>`;
       row.querySelector(".subject-level").value = index < 3 ? "HL" : "SL";
       subjectGrid.appendChild(row);
     });
@@ -326,14 +345,39 @@
 
     const subjectGradeInputs = [...document.querySelectorAll(".subject-grade")];
     const subjectLevelInputs = [...document.querySelectorAll(".subject-level")];
+    const subjectChoiceInputs = [...document.querySelectorAll(".subject-choice")];
+    const additionalGroupSelector = document.querySelector(".subject-group-choice");
     const selectors = [
       ...subjectGradeInputs,
       ...subjectLevelInputs,
-      ...document.querySelectorAll(".subject-choice"),
+      ...subjectChoiceInputs,
+      additionalGroupSelector,
       document.getElementById("ee-grade"),
       document.getElementById("tok-grade"),
       document.getElementById("cas-complete")
     ];
+
+    function updateAdditionalGroup(preserveChoice = true) {
+      const groupIndex = Number(additionalGroupSelector.value);
+      const group = subjectGroups[groupIndex];
+      const choice = subjectChoiceInputs[5];
+      const previousChoice = preserveChoice ? choice.value : "";
+      choice.innerHTML = group.subjects
+        .map((subject) => `<option value="${subject}">${subject}</option>`)
+        .join("");
+      if (group.subjects.includes(previousChoice)) {
+        choice.value = previousChoice;
+      }
+
+      const name = document.querySelector("#subject-5").closest(".subject-row").querySelector(".subject-name");
+      name.querySelector("label").textContent = group.title;
+      name.querySelector("span").textContent = groupIndex === 5
+        ? "Group 6"
+        : `Additional Group ${groupIndex + 1} subject`;
+      choice.setAttribute("aria-label", `${group.title} additional subject choice`);
+    }
+
+    updateAdditionalGroup(false);
 
     function normalCdf(value, mean, standardDeviation) {
       const z = (value - mean) / (standardDeviation * Math.sqrt(2));
@@ -366,8 +410,10 @@
       const coreStatus = document.getElementById("core-status");
       const casComplete = document.getElementById("cas-complete").checked;
       const subjectLevels = [...document.querySelectorAll(".subject-level")].map((select) => select.value);
+      const subjectChoices = subjectChoiceInputs.map((select) => select.value);
       const numericGrades = subjectGradeInputs.map((input) => Number(input.value)).filter((grade) => grade > 0);
       const gradesComplete = numericGrades.length === 6;
+      const distinctSubjects = new Set(subjectChoices).size === 6;
 
       const hlGrades = subjectGradeInputs
         .map((input, index) => ({ level: subjectLevels[index], grade: Number(input.value) }))
@@ -390,6 +436,7 @@
         { pass: casComplete, text: "CAS requirements are complete." },
         { pass: total >= 24, text: "At least 24 total diploma points." },
         { pass: gradesComplete && coreComplete, text: "A grade is awarded for all six subjects, TOK and EE." },
+        { pass: gradesComplete && distinctSubjects, text: "Six distinct subject courses are selected." },
         { pass: gradesComplete && numericGrades.every((grade) => grade >= 2), text: "No subject grade is below 2." },
         { pass: gradesComplete && numericGrades.filter((grade) => grade === 2).length <= 2, text: "No more than two grade 2s overall." },
         { pass: gradesComplete && numericGrades.filter((grade) => grade <= 3).length <= 3, text: "No more than three grade 3s or below overall." },
@@ -455,19 +502,30 @@
 
     }
 
-    selectors.forEach((selector) => selector.addEventListener("change", updateScore));
+    selectors.forEach((selector) => {
+      if (selector !== additionalGroupSelector) {
+        selector.addEventListener("change", updateScore);
+      }
+    });
+    additionalGroupSelector.addEventListener("change", () => {
+      updateAdditionalGroup();
+      updateScore();
+    });
     document.getElementById("reset-button").addEventListener("click", () => {
       selectors.forEach((selector) => {
         if (selector.classList.contains("subject-level")) {
           selector.value = subjectLevelInputs.indexOf(selector) < 3 ? "HL" : "SL";
         } else if (selector.classList.contains("subject-choice")) {
           selector.selectedIndex = 0;
+        } else if (selector === additionalGroupSelector) {
+          selector.value = "5";
         } else if (selector.id === "cas-complete") {
           selector.checked = false;
         } else {
           selector.value = "";
         }
       });
+      updateAdditionalGroup(false);
       updateScore();
       subjectGradeInputs[0].focus();
     });
