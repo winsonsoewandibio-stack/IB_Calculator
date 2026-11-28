@@ -95,6 +95,7 @@
     .subject-name { min-width: 0; }
     .subject-name label { display: block; overflow: hidden; font-size: 13px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
     .subject-name span { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; }
+    .subject-note { margin: 14px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
     select {
       width: 100%;
       min-height: 39px;
@@ -189,11 +190,12 @@
             <div class="section-heading">
               <div>
                 <h2 id="subjects-title">Subject grades</h2>
-                <p>Choose a level and grade for each of your six subjects.</p>
+                <p>Choose a course category, level and grade for each subject. <a href="https://www.ibo.org/programmes/diploma-programme/curriculum/" target="_blank" rel="noopener noreferrer" style="color: inherit;">IB DP curriculum</a>.</p>
               </div>
               <span class="section-index" aria-hidden="true">01</span>
             </div>
             <div class="subject-grid" id="subject-grid"></div>
+            <p class="subject-note">Interdisciplinary courses can count toward two groups: Literature and performance (Studies in language and literature and the arts); Environmental systems and societies (Sciences and individuals and societies).</p>
           </section>
 
           <section class="card form-card" aria-labelledby="core-title">
@@ -270,27 +272,27 @@
     const subjectGroups = [
       {
         title: "Studies in Language and Literature",
-        subjects: ["English A: Language & Literature", "English A: Literature", "Literature and Performance", "School-supported self-taught literature"]
+        subjects: ["Language A: literature", "Language A: language and literature", "Literature and performance"]
       },
       {
         title: "Language Acquisition",
-        subjects: ["Mandarin", "French", "Spanish", "German", "Japanese", "Latin", "Other language"]
+        subjects: ["Classical languages", "Language ab initio", "Language B"]
       },
       {
         title: "Individuals and Societies",
-        subjects: ["Business Management", "Economics", "Geography", "Global Politics", "History", "Philosophy", "Psychology", "Social and Cultural Anthropology", "World Religions"]
+        subjects: ["Business management", "Digital society", "Economics", "Geography", "Global politics", "History", "Philosophy", "Psychology", "Social and cultural anthropology", "World religions"]
       },
       {
         title: "Sciences",
-        subjects: ["Biology", "Chemistry", "Computer Science", "Design Technology", "Physics", "Environmental Systems and Societies", "Sports, Exercise and Health Science"]
+        subjects: ["Biology", "Chemistry", "Computer science", "Design technology", "Environmental systems and societies", "Physics", "Sports, exercise and health science"]
       },
       {
         title: "Mathematics",
-        subjects: ["Mathematics: Analysis and Approaches", "Mathematics: Applications and Interpretation"]
+        subjects: ["Analysis and approaches", "Applications and interpretation"]
       },
       {
-        title: "The Arts or Elective",
-        subjects: ["Visual Arts", "Music", "Dance", "Film", "Theatre", "An additional subject from Groups 1–4"]
+        title: "The Arts",
+        subjects: ["Dance", "Film", "Music", "Theatre", "Visual arts", "An additional sciences, individuals and societies, or languages subject"]
       }
     ];
 
@@ -306,7 +308,7 @@
         .map((subject) => `<option value="${subject}">${subject}</option>`)
         .join("");
       row.innerHTML =
-        `<div class="subject-name"><label for="subject-${index}">${group.title}</label><span>Subject ${index + 1}</span></div>` +
+        `<div class="subject-name"><label for="subject-${index}">${group.title}</label><span>Group ${index + 1}</span></div>` +
         `<select class="subject-level" aria-label="${group.title} level" title="Subject level">${levelOptions}</select>` +
         `<select class="subject-choice" id="subject-${index}" aria-label="${group.title} choice">${subjectOptions}</select>` +
         `<select class="subject-grade" id="subject-grade-${index}" aria-label="${group.title} grade">${gradeOptions}</select>`;
