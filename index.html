@@ -98,6 +98,11 @@
     .subject-controls { display: grid; grid-template-columns: 70px minmax(0, 1fr) 70px; gap: 9px; }
     .subject-category { display: grid; gap: 5px; }
     .subject-category label { color: var(--muted); font-size: 11px; font-weight: 650; }
+    .language-field { display: grid; gap: 5px; }
+    .language-field[hidden] { display: none; }
+    .language-field label { color: var(--muted); font-size: 11px; font-weight: 650; }
+    .language-field input { width: 100%; min-height: 39px; padding: 0 9px; color: var(--ink); background: white; border: 1px solid #dfe3da; border-radius: 9px; font: inherit; font-size: 12px; }
+    .language-field input:focus { border-color: var(--green); outline-color: var(--green); outline-offset: 3px; }
     .subject-note { margin: 14px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
     select {
       width: 100%;
@@ -219,7 +224,9 @@
             </div>
             <div class="subject-grid" id="subject-grid"></div>
             <p class="subject-note">For Group 6, choose Arts or an additional course from Studies in language and literature, Language acquisition, Individuals and societies, or Sciences.</p>
+            <p class="subject-note">An additional Group 1 course replaces Group 6/Arts, not Group 2; Language Acquisition remains one of the six subject groups.</p>
             <p class="subject-note">You can choose Literature and performance or Environmental systems and societies under either eligible group, but the same course cannot be entered as two of the six subjects.</p>
+            <p class="subject-note">If selecting the same language-course type twice, enter each language name so the calculator can distinguish the courses. Matching or missing language names count as a duplicate.</p>
           </section>
 
           <section class="card form-card" aria-labelledby="core-title">
@@ -326,7 +333,7 @@
               <li>At least 12 points across HL subjects (if taking four HL subjects, the three highest HL grades are counted).</li>
               <li>At least 9 points across three SL subjects, or at least 5 points across two SL subjects when taking four HL subjects.</li>
               <li>Neither the Extended Essay nor Theory of Knowledge is grade E.</li>
-              <li>Six distinct courses: an interdisciplinary course cannot be entered or counted twice.</li>
+              <li>Six distinct courses: an interdisciplinary course cannot be entered twice, and same-type language courses need distinct language names.</li>
             </ul>
             <p class="reference-note">This is a planning check, not an official diploma award. Additional IB rules, including academic integrity and course-combination requirements, may apply. Confirm with your DP coordinator and the <a href="https://www.ibo.org/about-the-ib/what-it-means-to-be-an-ib-student/recognizing-student-achievement/about-assessment/dp-passing-criteria/" target="_blank" rel="noopener noreferrer">official DP passing criteria</a>.</p>
           </section>
@@ -386,11 +393,20 @@
       const groupSelector = index === 5
         ? `<div class="subject-category"><label for="subject-group-${index}">Choose this subject's group</label><select class="subject-group-choice" id="subject-group-${index}">${additionalGroupOptions}</select></div>`
         : "";
+      const languageLabel = index === 0
+        ? "Studies in language and literature course language"
+        : index === 1
+          ? "Language acquisition course language"
+          : "Additional subject course language";
+      const languageField = [0, 1, 5].includes(index)
+        ? `<div class="language-field"${index === 5 ? " hidden" : ""}><label for="subject-language-${index}">${languageLabel}</label><input class="subject-language-name" id="subject-language-${index}" type="text" placeholder="e.g., French"${index === 5 ? " disabled" : ""}></div>`
+        : "";
       const name = index === 5 ? "Additional subject" : group.title;
       const groupNumber = index === 5 ? "Group 6 / replacement" : `Group ${index + 1}`;
       row.innerHTML =
         `<div class="subject-name"><label for="subject-${index}">${name}</label><span>${groupNumber}</span></div>` +
         groupSelector +
+        languageField +
         `<div class="subject-controls">` +
         `<select class="subject-level" aria-label="${name} level" title="Subject level">${levelOptions}</select>` +
         `<select class="subject-choice" id="subject-${index}" aria-label="${name} choice">${subjectOptions}</select>` +
@@ -411,22 +427,69 @@
     const subjectGradeInputs = [...document.querySelectorAll(".subject-grade")];
     const subjectLevelInputs = [...document.querySelectorAll(".subject-level")];
     const subjectChoiceInputs = [...document.querySelectorAll(".subject-choice")];
+    const subjectLanguageInputs = subjectChoiceInputs.map((_, index) =>
+      document.getElementById(`subject-language-${index}`));
     const additionalGroupSelector = document.querySelector(".subject-group-choice");
     const selectors = [
       ...subjectGradeInputs,
       ...subjectLevelInputs,
       ...subjectChoiceInputs,
+      ...subjectLanguageInputs.filter((input) => input !== null),
       additionalGroupSelector,
       document.getElementById("ee-grade"),
       document.getElementById("tok-grade"),
       document.getElementById("cas-complete")
     ];
 
+    function getSubjectGroupIndex(subjectIndex) {
+      return subjectIndex === 5 ? Number(additionalGroupSelector.value) : subjectIndex;
+    }
+
+    function isLanguageCourse(groupIndex, course) {
+      return groupIndex === 1 || (groupIndex === 0 && course.startsWith("Language A:"));
+    }
+
+    function canBeDistinguishedByLanguage(firstIndex, secondIndex, course) {
+      const firstGroup = getSubjectGroupIndex(firstIndex);
+      const secondGroup = getSubjectGroupIndex(secondIndex);
+      return firstGroup === secondGroup &&
+        (firstGroup === 1 || (firstGroup === 0 && course.startsWith("Language A:")));
+    }
+
+    function areSameCourse(firstIndex, secondIndex) {
+      const course = subjectChoiceInputs[firstIndex].value;
+      if (course !== subjectChoiceInputs[secondIndex].value) {
+        return false;
+      }
+      if (!canBeDistinguishedByLanguage(firstIndex, secondIndex, course)) {
+        return true;
+      }
+
+      const firstLanguageInput = subjectLanguageInputs[firstIndex];
+      const secondLanguageInput = subjectLanguageInputs[secondIndex];
+      const firstLanguage = firstLanguageInput ? firstLanguageInput.value.trim().toLowerCase() : "";
+      const secondLanguage = secondLanguageInput ? secondLanguageInput.value.trim().toLowerCase() : "";
+      return firstLanguage === "" || secondLanguage === "" ||
+        firstLanguage.normalize("NFC") === secondLanguage.normalize("NFC");
+    }
+
+    function updateLanguageFields() {
+      subjectLanguageInputs.forEach((input, index) => {
+        if (input === null) {
+          return;
+        }
+        const showField = isLanguageCourse(getSubjectGroupIndex(index), subjectChoiceInputs[index].value);
+        input.closest(".language-field").hidden = !showField;
+        input.disabled = !showField;
+      });
+    }
+
     function updateAdditionalGroup(preserveChoice = true) {
       const groupIndex = Number(additionalGroupSelector.value);
       const group = subjectGroups[groupIndex];
       const choice = subjectChoiceInputs[5];
       const previousChoice = preserveChoice ? choice.value : "";
+      subjectLanguageInputs[5].value = "";
       choice.innerHTML = group.subjects
         .map((subject) => `<option value="${subject}">${subject}</option>`)
         .join("");
@@ -440,14 +503,21 @@
         ? "Group 6"
         : `Additional Group ${groupIndex + 1} subject`;
       choice.setAttribute("aria-label", `${group.title} additional subject choice`);
+      subjectLanguageInputs[5].closest(".language-field").querySelector("label").textContent =
+        `${group.title} additional subject language`;
+      updateLanguageFields();
     }
 
     function selectUniqueAdditionalCourse() {
       const additionalChoice = subjectChoiceInputs[5];
-      const otherChoices = new Set(subjectChoiceInputs.slice(0, 5).map((select) => select.value));
-      if (otherChoices.has(additionalChoice.value)) {
+      const hasNonLanguageDuplicate = subjectChoiceInputs.slice(0, 5).some((select, index) =>
+        select.value === additionalChoice.value &&
+        !canBeDistinguishedByLanguage(5, index, additionalChoice.value));
+      if (hasNonLanguageDuplicate) {
         const replacement = [...additionalChoice.options]
-          .find((option) => !otherChoices.has(option.value));
+          .find((option) => subjectChoiceInputs.slice(0, 5).every((select, index) =>
+            select.value !== option.value ||
+            canBeDistinguishedByLanguage(5, index, option.value)));
         if (replacement) {
           additionalChoice.value = replacement.value;
         }
@@ -455,15 +525,19 @@
     }
 
     function updateDuplicateCourseOptions() {
-      subjectChoiceInputs.forEach((select) => {
+      subjectChoiceInputs.forEach((select, index) => {
         [...select.options].forEach((option) => {
           option.disabled = option.value !== select.value &&
-            subjectChoiceInputs.some((otherSelect) => otherSelect !== select && otherSelect.value === option.value);
+            subjectChoiceInputs.some((otherSelect, otherIndex) =>
+              otherSelect !== select &&
+              otherSelect.value === option.value &&
+              !canBeDistinguishedByLanguage(index, otherIndex, option.value));
         });
       });
     }
 
     updateAdditionalGroup(false);
+    updateLanguageFields();
     updateDuplicateCourseOptions();
 
     function normalCdf(value, mean, standardDeviation) {
@@ -488,14 +562,13 @@
       const enteredGrades = subjectGradeInputs
         .map((input) => input.value)
         .filter((grade) => grade !== "");
-      const countedCourses = new Set();
+      const countedCourses = [];
       const subjectTotal = subjectGradeInputs.reduce((sum, input, index) => {
-        const course = subjectChoiceInputs[index].value;
         const grade = Number(input.value);
-        if (grade <= 0 || countedCourses.has(course)) {
+        if (grade <= 0 || countedCourses.some((courseIndex) => areSameCourse(index, courseIndex))) {
           return sum;
         }
-        countedCourses.add(course);
+        countedCourses.push(index);
         return sum + grade;
       }, 0);
       const ee = document.getElementById("ee-grade").value;
@@ -506,10 +579,11 @@
       const coreStatus = document.getElementById("core-status");
       const casComplete = document.getElementById("cas-complete").checked;
       const subjectLevels = [...document.querySelectorAll(".subject-level")].map((select) => select.value);
-      const subjectChoices = subjectChoiceInputs.map((select) => select.value);
       const numericGrades = subjectGradeInputs.map((input) => Number(input.value)).filter((grade) => grade > 0);
       const gradesComplete = numericGrades.length === 6;
-      const distinctSubjects = new Set(subjectChoices).size === subjectChoices.length;
+      const distinctSubjects = subjectChoiceInputs.every((_, index) =>
+        subjectChoiceInputs.slice(index + 1).every((__, offset) =>
+          !areSameCourse(index, index + offset + 1)));
 
       const hlGrades = subjectGradeInputs
         .map((input, index) => ({ level: subjectLevels[index], grade: Number(input.value) }))
@@ -532,7 +606,7 @@
         { pass: casComplete, text: "CAS requirements are complete." },
         { pass: total >= 24, text: "At least 24 total diploma points." },
         { pass: gradesComplete && coreComplete, text: "A grade is awarded for all six subjects, TOK and EE." },
-        { pass: gradesComplete && distinctSubjects, text: "Six distinct subject courses are selected; an interdisciplinary course cannot be counted twice." },
+        { pass: gradesComplete && distinctSubjects, text: "Six distinct subject courses are selected; duplicates cannot be counted twice." },
         { pass: gradesComplete && numericGrades.every((grade) => grade >= 2), text: "No subject grade is below 2." },
         { pass: gradesComplete && numericGrades.filter((grade) => grade === 2).length <= 2, text: "No more than two grade 2s overall." },
         { pass: gradesComplete && numericGrades.filter((grade) => grade <= 3).length <= 3, text: "No more than three grade 3s or below overall." },
@@ -557,7 +631,7 @@
       coreStatus.classList.remove("warning", "pass", "fail");
       if (!distinctSubjects) {
         coreStatus.classList.add("fail");
-        coreStatus.textContent = "A course is selected more than once. Repeated courses count only once; choose six distinct courses to check diploma eligibility.";
+        coreStatus.textContent = "A course is selected more than once. Repeated courses count only once; same-type language courses need different language names. Choose six distinct courses to check diploma eligibility.";
       } else if (incomplete) {
         coreStatus.classList.add("warning");
         coreStatus.textContent = "Enter all six subject grades and both EE/TOK grades. Confirm CAS completion to check Diploma eligibility.";
@@ -603,17 +677,25 @@
 
     selectors.forEach((selector) => {
       if (selector !== additionalGroupSelector) {
-        selector.addEventListener("change", () => {
+        const updateSelection = () => {
           if (selector.classList.contains("subject-choice")) {
+            updateLanguageFields();
+            updateDuplicateCourseOptions();
+          } else if (selector.classList.contains("subject-language-name")) {
             updateDuplicateCourseOptions();
           }
           updateScore();
-        });
+        };
+        selector.addEventListener(
+          selector.classList.contains("subject-language-name") ? "input" : "change",
+          updateSelection
+        );
       }
     });
     additionalGroupSelector.addEventListener("change", () => {
       updateAdditionalGroup();
       selectUniqueAdditionalCourse();
+      updateLanguageFields();
       updateDuplicateCourseOptions();
       updateScore();
     });
