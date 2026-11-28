@@ -144,8 +144,27 @@
     .fine-print { max-width: 550px; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
     .reset-button { flex: 0 0 auto; padding: 10px 14px; color: var(--green-dark); background: transparent; border: 1px solid #cfd7cd; border-radius: 9px; cursor: pointer; font-size: 12px; font-weight: 700; }
     .reset-button:hover { background: var(--soft-green); }
+    .reference-card { margin-top: 24px; padding: 25px 26px 26px; }
+    .reference-card > .section-heading { margin-bottom: 18px; }
+    .reference-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+    .reference-panel { min-width: 0; padding: 17px; background: #fbfbf7; border: 1px solid #eceee6; border-radius: 12px; }
+    .reference-panel h3 { margin: 0; font-size: 14px; letter-spacing: -.02em; }
+    .reference-panel > p { margin: 6px 0 12px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .reference-table-wrap { overflow-x: auto; }
+    .reference-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: center; }
+    .bonus-table { min-width: 350px; table-layout: fixed; }
+    .bonus-table th:first-child { width: 82px; }
+    .reference-table th, .reference-table td { padding: 8px 7px; border-bottom: 1px solid var(--line); }
+    .reference-table thead th { color: var(--green-dark); font-weight: 750; }
+    .reference-table tbody th { text-align: left; font-weight: 650; white-space: nowrap; }
+    .requirements-list { margin: 0; padding-left: 19px; color: var(--ink); font-size: 12px; line-height: 1.55; }
+    .requirements-list li + li { margin-top: 6px; }
+    .reference-note { margin-top: 13px !important; padding: 10px 11px; color: #70551f !important; background: var(--soft-amber); border-radius: 9px; }
     footer { padding: 20px 0 28px; color: #78827b; font-size: 11px; text-align: center; }
 
+    @media (max-width: 900px) {
+      .reference-grid { grid-template-columns: minmax(0, 1fr); }
+    }
     @media (max-width: 1100px) {
       .calculator-layout { grid-template-columns: minmax(0, 1fr); }
       .result-card { position: static; grid-row: 1; }
@@ -160,6 +179,8 @@
       .intro { margin-bottom: 24px; }
       .intro p { font-size: 14px; }
       .form-card { padding: 20px 16px; }
+      .reference-card { padding: 20px 16px; }
+      .reference-panel { padding: 14px; }
       .subject-grid { grid-template-columns: minmax(0, 1fr); gap: 9px; }
       .subject-controls { grid-template-columns: 64px minmax(0, 1fr) 64px; }
       .core-grid { gap: 10px; }
@@ -198,7 +219,7 @@
             </div>
             <div class="subject-grid" id="subject-grid"></div>
             <p class="subject-note">For Group 6, choose Arts or an additional course from Studies in language and literature, Language acquisition, Individuals and societies, or Sciences.</p>
-            <p class="subject-note">Interdisciplinary courses count toward two groups: Literature and performance (Studies in language and literature and Arts); Environmental systems and societies (Sciences and Individuals and societies).</p>
+            <p class="subject-note">You can choose Literature and performance or Environmental systems and societies under either eligible group, but the same course cannot be entered as two of the six subjects.</p>
           </section>
 
           <section class="card form-card" aria-labelledby="core-title">
@@ -267,6 +288,50 @@
           </div>
         </aside>
       </div>
+
+      <section class="card reference-card" aria-labelledby="reference-title">
+        <div class="section-heading">
+          <div>
+            <h2 id="reference-title">DP diploma reference</h2>
+            <p>Core bonus points and the score-based diploma conditions used by this estimate.</p>
+          </div>
+        </div>
+        <div class="reference-grid">
+          <section class="reference-panel" aria-labelledby="bonus-matrix-title">
+            <h3 id="bonus-matrix-title">EE/TOK core bonus points</h3>
+            <p>Rows are Extended Essay grades; columns are Theory of Knowledge grades.</p>
+            <div class="reference-table-wrap">
+              <table class="reference-table bonus-table">
+                <caption>Bonus points awarded for each Extended Essay and Theory of Knowledge grade combination</caption>
+                <thead>
+                  <tr><th scope="col">EE \ TOK</th><th scope="col">A</th><th scope="col">B</th><th scope="col">C</th><th scope="col">D</th><th scope="col">E</th></tr>
+                </thead>
+                <tbody>
+                  <tr><th scope="row">A</th><td>3</td><td>3</td><td>2</td><td>2</td><td>0</td></tr>
+                  <tr><th scope="row">B</th><td>3</td><td>2</td><td>2</td><td>1</td><td>0</td></tr>
+                  <tr><th scope="row">C</th><td>2</td><td>2</td><td>1</td><td>0</td><td>0</td></tr>
+                  <tr><th scope="row">D</th><td>2</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+                  <tr><th scope="row">E</th><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+          <section class="reference-panel" aria-labelledby="diploma-requirements-title">
+            <h3 id="diploma-requirements-title">Diploma award requirements</h3>
+            <p>The estimate checks these conditions:</p>
+            <ul class="requirements-list">
+              <li>At least 24 total points, including core bonus points.</li>
+              <li>A grade in all six subjects, the Extended Essay and Theory of Knowledge; CAS requirements completed.</li>
+              <li>No subject grade of 1; no more than two grade 2s overall; and no more than three grades of 3 or below overall.</li>
+              <li>At least 12 points across HL subjects (if taking four HL subjects, the three highest HL grades are counted).</li>
+              <li>At least 9 points across three SL subjects, or at least 5 points across two SL subjects when taking four HL subjects.</li>
+              <li>Neither the Extended Essay nor Theory of Knowledge is grade E.</li>
+              <li>Six distinct courses: an interdisciplinary course cannot be entered or counted twice.</li>
+            </ul>
+            <p class="reference-note">This is a planning check, not an official diploma award. Additional IB rules, including academic integrity and course-combination requirements, may apply. Confirm with your DP coordinator and the <a href="https://www.ibo.org/about-the-ib/what-it-means-to-be-an-ib-student/recognizing-student-achievement/about-assessment/dp-passing-criteria/" target="_blank" rel="noopener noreferrer">official DP passing criteria</a>.</p>
+          </section>
+        </div>
+      </section>
     </main>
     <footer>Made for planning your next steps. Always confirm results with your IB coordinator.</footer>
   </div>
@@ -377,7 +442,29 @@
       choice.setAttribute("aria-label", `${group.title} additional subject choice`);
     }
 
+    function selectUniqueAdditionalCourse() {
+      const additionalChoice = subjectChoiceInputs[5];
+      const otherChoices = new Set(subjectChoiceInputs.slice(0, 5).map((select) => select.value));
+      if (otherChoices.has(additionalChoice.value)) {
+        const replacement = [...additionalChoice.options]
+          .find((option) => !otherChoices.has(option.value));
+        if (replacement) {
+          additionalChoice.value = replacement.value;
+        }
+      }
+    }
+
+    function updateDuplicateCourseOptions() {
+      subjectChoiceInputs.forEach((select) => {
+        [...select.options].forEach((option) => {
+          option.disabled = option.value !== select.value &&
+            subjectChoiceInputs.some((otherSelect) => otherSelect !== select && otherSelect.value === option.value);
+        });
+      });
+    }
+
     updateAdditionalGroup(false);
+    updateDuplicateCourseOptions();
 
     function normalCdf(value, mean, standardDeviation) {
       const z = (value - mean) / (standardDeviation * Math.sqrt(2));
@@ -401,7 +488,16 @@
       const enteredGrades = subjectGradeInputs
         .map((input) => input.value)
         .filter((grade) => grade !== "");
-      const subjectTotal = enteredGrades.reduce((sum, grade) => sum + Number(grade), 0);
+      const countedCourses = new Set();
+      const subjectTotal = subjectGradeInputs.reduce((sum, input, index) => {
+        const course = subjectChoiceInputs[index].value;
+        const grade = Number(input.value);
+        if (grade <= 0 || countedCourses.has(course)) {
+          return sum;
+        }
+        countedCourses.add(course);
+        return sum + grade;
+      }, 0);
       const ee = document.getElementById("ee-grade").value;
       const tok = document.getElementById("tok-grade").value;
       const coreComplete = ee !== "" && tok !== "";
@@ -413,7 +509,7 @@
       const subjectChoices = subjectChoiceInputs.map((select) => select.value);
       const numericGrades = subjectGradeInputs.map((input) => Number(input.value)).filter((grade) => grade > 0);
       const gradesComplete = numericGrades.length === 6;
-      const distinctSubjects = new Set(subjectChoices).size === 6;
+      const distinctSubjects = new Set(subjectChoices).size === subjectChoices.length;
 
       const hlGrades = subjectGradeInputs
         .map((input, index) => ({ level: subjectLevels[index], grade: Number(input.value) }))
@@ -436,7 +532,7 @@
         { pass: casComplete, text: "CAS requirements are complete." },
         { pass: total >= 24, text: "At least 24 total diploma points." },
         { pass: gradesComplete && coreComplete, text: "A grade is awarded for all six subjects, TOK and EE." },
-        { pass: gradesComplete && distinctSubjects, text: "Six distinct subject courses are selected." },
+        { pass: gradesComplete && distinctSubjects, text: "Six distinct subject courses are selected; an interdisciplinary course cannot be counted twice." },
         { pass: gradesComplete && numericGrades.every((grade) => grade >= 2), text: "No subject grade is below 2." },
         { pass: gradesComplete && numericGrades.filter((grade) => grade === 2).length <= 2, text: "No more than two grade 2s overall." },
         { pass: gradesComplete && numericGrades.filter((grade) => grade <= 3).length <= 3, text: "No more than three grade 3s or below overall." },
@@ -459,7 +555,10 @@
           ? "Diploma"
           : "No diploma";
       coreStatus.classList.remove("warning", "pass", "fail");
-      if (incomplete) {
+      if (!distinctSubjects) {
+        coreStatus.classList.add("fail");
+        coreStatus.textContent = "A course is selected more than once. Repeated courses count only once; choose six distinct courses to check diploma eligibility.";
+      } else if (incomplete) {
         coreStatus.classList.add("warning");
         coreStatus.textContent = "Enter all six subject grades and both EE/TOK grades. Confirm CAS completion to check Diploma eligibility.";
       } else if (diplomaPassed) {
@@ -504,11 +603,18 @@
 
     selectors.forEach((selector) => {
       if (selector !== additionalGroupSelector) {
-        selector.addEventListener("change", updateScore);
+        selector.addEventListener("change", () => {
+          if (selector.classList.contains("subject-choice")) {
+            updateDuplicateCourseOptions();
+          }
+          updateScore();
+        });
       }
     });
     additionalGroupSelector.addEventListener("change", () => {
       updateAdditionalGroup();
+      selectUniqueAdditionalCourse();
+      updateDuplicateCourseOptions();
       updateScore();
     });
     document.getElementById("reset-button").addEventListener("click", () => {
@@ -526,6 +632,7 @@
         }
       });
       updateAdditionalGroup(false);
+      updateDuplicateCourseOptions();
       updateScore();
       subjectGradeInputs[0].focus();
     });
