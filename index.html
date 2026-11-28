@@ -81,6 +81,7 @@
     .intro p { max-width: 560px; margin: 17px 0 0; color: var(--muted); font-size: 16px; line-height: 1.65; }
 
     .calculator-layout { display: grid; grid-template-columns: minmax(0, 1fr) 325px; align-items: start; gap: 22px; }
+    .form-column, .form-card, .subject-grid { min-width: 0; }
     .form-column { display: grid; gap: 20px; }
     .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
     .form-card { padding: 25px 26px 26px; }
@@ -89,8 +90,8 @@
     .section-heading p { margin: 6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
     .section-index { display: grid; flex: 0 0 30px; width: 30px; height: 30px; place-items: center; color: var(--green); background: var(--soft-green); border-radius: 10px; font-size: 12px; font-weight: 800; }
 
-    .subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .subject-row { display: grid; grid-template-columns: minmax(0, 1fr) 76px minmax(150px, 1.25fr) 76px; align-items: center; gap: 9px; padding: 11px 12px; background: #fbfbf7; border: 1px solid #eceee6; border-radius: 12px; }
+    .subject-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 350px), 1fr)); gap: 12px; }
+    .subject-row { display: grid; grid-template-columns: minmax(0, 1fr) 70px minmax(145px, 1.25fr) 70px; align-items: center; gap: 9px; padding: 11px 12px; background: #fbfbf7; border: 1px solid #eceee6; border-radius: 12px; }
     .subject-name { min-width: 0; }
     .subject-name label { display: block; overflow: hidden; font-size: 13px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
     .subject-name span { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; }
@@ -133,14 +134,16 @@
     .percentile-caption { margin: 2px 0 10px; color: var(--muted); font-size: 11px; line-height: 1.45; }
     .status { margin-top: 13px; padding: 10px 11px; color: #5e543e; background: #f5f1e7; border-radius: 9px; font-size: 11px; line-height: 1.5; }
     .status.warning { color: var(--amber); background: var(--soft-amber); }
+    .status.pass { color: #245c46; background: #eef4e8; }
+    .status.fail { color: #9a3d33; background: #fdeae6; }
     .actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 3px; }
     .fine-print { max-width: 550px; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
     .reset-button { flex: 0 0 auto; padding: 10px 14px; color: var(--green-dark); background: transparent; border: 1px solid #cfd7cd; border-radius: 9px; cursor: pointer; font-size: 12px; font-weight: 700; }
     .reset-button:hover { background: var(--soft-green); }
     footer { padding: 20px 0 28px; color: #78827b; font-size: 11px; text-align: center; }
 
-    @media (max-width: 850px) {
-      .calculator-layout { grid-template-columns: 1fr; }
+    @media (max-width: 1100px) {
+      .calculator-layout { grid-template-columns: minmax(0, 1fr); }
       .result-card { position: static; grid-row: 1; }
       .result-top { padding-bottom: 20px; }
       .total { font-size: 65px; }
@@ -153,7 +156,7 @@
       .intro { margin-bottom: 24px; }
       .intro p { font-size: 14px; }
       .form-card { padding: 20px 16px; }
-      .subject-grid { grid-template-columns: 1fr; gap: 9px; }
+      .subject-grid { grid-template-columns: minmax(0, 1fr); gap: 9px; }
       .subject-row { grid-template-columns: 64px minmax(0, 1fr) 64px; }
       .subject-name { grid-column: 1 / -1; }
       .core-grid { gap: 10px; }
@@ -225,11 +228,17 @@
                 </select>
               </div>
             </div>
-            <div class="core-hint"><span class="hint-icon" aria-hidden="true">✦</span><span>The core contributes <strong>up to 3 bonus points</strong>. The bonus is calculated from the official EE/TOK matrix.</span></div>
+            <div class="core-hint"><span class="hint-icon" aria-hidden="true">✦</span><span>The core contributes <strong>up to 3 bonus points</strong>. The bonus is calculated from the official EE/TOK matrix. CAS is pass/fail and does not add points.</span></div>
+            <div class="field" style="margin-top: 16px;">
+              <label for="cas-complete" style="display: flex; align-items: center; gap: 8px; margin: 0; cursor: pointer;">
+                <input id="cas-complete" type="checkbox" aria-label="Creativity, Activity and Service requirements completed" style="width: 16px; height: 16px; accent-color: var(--green);">
+                <span>CAS requirements completed</span>
+              </label>
+            </div>
           </section>
 
           <div class="actions">
-            <p class="fine-print">This is an estimate based on entered grades, not an official IB result or a diploma-award eligibility check. Subject assessment components and session-specific grade boundaries are not included.</p>
+            <p class="fine-print">Planning estimate based on the official DP passing criteria. It does not verify course compatibility or content overlap, assessment components, or session-specific rules. Confirm with your DP coordinator. <a href="https://www.ibo.org/about-the-ib/what-it-means-to-be-an-ib-student/recognizing-student-achievement/about-assessment/dp-passing-criteria/" target="_blank" rel="noopener noreferrer" style="color: inherit;">IB DP passing criteria</a>.</p>
             <button class="reset-button" id="reset-button" type="button">Reset grades</button>
           </div>
         </div>
@@ -246,6 +255,7 @@
             <div class="breakdown-row"><span>Subject points</span><strong id="subject-points">0 / 42</strong></div>
             <div class="breakdown-row"><span>Core bonus</span><strong id="core-points">0 / 3</strong></div>
             <div class="breakdown-row"><span>Grades entered</span><strong id="grades-entered">0 / 6</strong></div>
+            <div class="breakdown-row"><span>Diploma status</span><strong id="diploma-status">Incomplete</strong></div>
             <div class="breakdown-row percentile-row"><span>Estimated percentile</span><strong class="percentile-value" id="percentile-score">--</strong></div>
             <p class="percentile-caption" id="percentile-caption">Enter a score to compare it with the IB student population.</p>
             <div class="status" id="core-status">Add both core grades to calculate your bonus points.</div>
@@ -300,6 +310,7 @@
         `<select class="subject-level" aria-label="${group.title} level" title="Subject level">${levelOptions}</select>` +
         `<select class="subject-choice" id="subject-${index}" aria-label="${group.title} choice">${subjectOptions}</select>` +
         `<select class="subject-grade" id="subject-grade-${index}" aria-label="${group.title} grade">${gradeOptions}</select>`;
+      row.querySelector(".subject-level").value = index < 3 ? "HL" : "SL";
       subjectGrid.appendChild(row);
     });
 
@@ -312,23 +323,25 @@
     };
 
     const subjectGradeInputs = [...document.querySelectorAll(".subject-grade")];
+    const subjectLevelInputs = [...document.querySelectorAll(".subject-level")];
     const selectors = [
       ...subjectGradeInputs,
-      ...document.querySelectorAll(".subject-level"),
+      ...subjectLevelInputs,
       ...document.querySelectorAll(".subject-choice"),
       document.getElementById("ee-grade"),
-      document.getElementById("tok-grade")
+      document.getElementById("tok-grade"),
+      document.getElementById("cas-complete")
     ];
 
     function normalCdf(value, mean, standardDeviation) {
       const z = (value - mean) / (standardDeviation * Math.sqrt(2));
       const sign = z < 0 ? -1 : 1;
       const absoluteZ = Math.abs(z);
-      const approximation = 1 - 1 / (1 + 0.3275911 * absoluteZ);
-      const polynomial = (((((1.061405429 * approximation - 1.453152027) * approximation) +
-        1.421413741) * approximation - 0.284496736) * approximation + 0.254829592) * approximation;
-      const result = 1 - polynomial * Math.exp(-absoluteZ * absoluteZ);
-      return 0.5 * (1 + sign * result);
+      const t = 1 / (1 + 0.3275911 * absoluteZ);
+      const polynomial = (((((1.061405429 * t - 1.453152027) * t) +
+        1.421413741) * t - 0.284496736) * t + 0.254829592) * t;
+      const erf = 1 - polynomial * Math.exp(-absoluteZ * absoluteZ);
+      return 0.5 * (1 + sign * erf);
     }
 
     function estimateOverallPercentile(score) {
@@ -349,6 +362,64 @@
       const corePoints = coreComplete ? coreMatrix[ee][tok] : 0;
       const total = subjectTotal + corePoints;
       const coreStatus = document.getElementById("core-status");
+      const casComplete = document.getElementById("cas-complete").checked;
+      const subjectLevels = [...document.querySelectorAll(".subject-level")].map((select) => select.value);
+      const numericGrades = subjectGradeInputs.map((input) => Number(input.value)).filter((grade) => grade > 0);
+      const gradesComplete = numericGrades.length === 6;
+
+      const hlGrades = subjectGradeInputs
+        .map((input, index) => ({ level: subjectLevels[index], grade: Number(input.value) }))
+        .filter((subject) => subject.level === "HL" && subject.grade > 0)
+        .map((subject) => subject.grade)
+        .sort((a, b) => b - a);
+      const slGrades = subjectGradeInputs
+        .map((input, index) => ({ level: subjectLevels[index], grade: Number(input.value) }))
+        .filter((subject) => subject.level === "SL" && subject.grade > 0)
+        .map((subject) => subject.grade);
+
+      const hlPointCount = hlGrades.length === 4
+        ? hlGrades.slice(0, 3).reduce((sum, grade) => sum + grade, 0)
+        : hlGrades.reduce((sum, grade) => sum + grade, 0);
+      const slPointCount = slGrades.reduce((sum, grade) => sum + grade, 0);
+      const hlCount = subjectLevels.filter((level) => level === "HL").length;
+      const slCount = subjectLevels.filter((level) => level === "SL").length;
+
+      const passChecks = [
+        { pass: casComplete, text: "CAS requirements are complete." },
+        { pass: total >= 24, text: "At least 24 total diploma points." },
+        { pass: gradesComplete && coreComplete, text: "A grade is awarded for all six subjects, TOK and EE." },
+        { pass: gradesComplete && numericGrades.every((grade) => grade >= 2), text: "No subject grade is below 2." },
+        { pass: gradesComplete && numericGrades.filter((grade) => grade === 2).length <= 2, text: "No more than two grade 2s overall." },
+        { pass: gradesComplete && numericGrades.filter((grade) => grade <= 3).length <= 3, text: "No more than three grade 3s or below overall." },
+        { pass: (hlCount === 4 ? hlGrades.length === 4 : hlCount === 3 ? hlGrades.length === 3 : false) && hlPointCount >= 12, text: hlCount === 4
+          ? "At least 12 points across the three highest HL grades."
+          : "At least 12 points across the HL subjects." },
+        { pass: slCount === 2 ? slPointCount >= 5 : slCount === 3 ? slPointCount >= 9 : false, text: slCount === 2
+          ? "At least 5 points across the two SL subjects."
+          : "At least 9 points across the SL subjects." },
+        { pass: coreComplete && ee !== "E" && tok !== "E", text: "TOK and EE are not grade E." }
+      ];
+      const incomplete = enteredGrades.length < 6 || !coreComplete || !gradesComplete;
+      const diplomaPassed = !incomplete && casComplete && passChecks.every((check) => check.pass);
+      const failedChecks = passChecks.filter((check) => !check.pass).map((check) => check.text);
+
+      const diplomaStatus = document.getElementById("diploma-status");
+      diplomaStatus.textContent = incomplete
+        ? "Incomplete"
+        : diplomaPassed
+          ? "Diploma"
+          : "No diploma";
+      coreStatus.classList.remove("warning", "pass", "fail");
+      if (incomplete) {
+        coreStatus.classList.add("warning");
+        coreStatus.textContent = "Enter all six subject grades and both EE/TOK grades. Confirm CAS completion to check Diploma eligibility.";
+      } else if (diplomaPassed) {
+        coreStatus.classList.add("pass");
+        coreStatus.textContent = "Grades meet the score-based DP passing conditions. Confirm subject rules with your coordinator.";
+      } else {
+        coreStatus.classList.add("fail");
+        coreStatus.textContent = `Eligibility issues: ${failedChecks.join(" ")}`;
+      }
 
       document.getElementById("total-score").textContent = total;
       document.getElementById("subject-points").textContent = `${subjectTotal} / 42`;
@@ -364,9 +435,9 @@
 
       const percentileElement = document.getElementById("percentile-score");
       const percentileCaption = document.getElementById("percentile-caption");
-      if (enteredGrades.length === 0) {
+      if (enteredGrades.length !== 6 || !coreComplete) {
         percentileElement.textContent = "--";
-        percentileCaption.textContent = "Enter a score to compare it with the IB student population.";
+        percentileCaption.textContent = "Enter all six subject grades and both EE/TOK grades to see the estimate.";
       } else {
         const percentile = estimateOverallPercentile(total);
         const ordinalSuffix = percentile % 10 === 1 && percentile % 100 !== 11
@@ -380,23 +451,17 @@
         percentileCaption.textContent = "Approximate planning percentile based on a 2024 global average model. This is not an official IB percentile.";
       }
 
-      coreStatus.classList.toggle("warning", coreComplete && (ee === "E" || tok === "E"));
-      if (!coreComplete) {
-        coreStatus.textContent = "Add both core grades to calculate your bonus points.";
-      } else if (ee === "E" || tok === "E") {
-        coreStatus.textContent = `Core bonus: ${corePoints} points. An E in EE or TOK can affect Diploma award eligibility.`;
-      } else {
-        coreStatus.textContent = `Your EE/TOK combination earns ${corePoints} core bonus ${corePoints === 1 ? "point" : "points"}.`;
-      }
     }
 
     selectors.forEach((selector) => selector.addEventListener("change", updateScore));
     document.getElementById("reset-button").addEventListener("click", () => {
       selectors.forEach((selector) => {
         if (selector.classList.contains("subject-level")) {
-          selector.value = "HL";
+          selector.value = subjectLevelInputs.indexOf(selector) < 3 ? "HL" : "SL";
         } else if (selector.classList.contains("subject-choice")) {
           selector.selectedIndex = 0;
+        } else if (selector.id === "cas-complete") {
+          selector.checked = false;
         } else {
           selector.value = "";
         }
